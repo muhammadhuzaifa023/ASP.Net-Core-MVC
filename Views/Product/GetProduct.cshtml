@@ -1,0 +1,54 @@
+﻿@using ASP.Net_Core_MVC.DTOS.Product
+@model List<GetProduct>
+@{
+    ViewData["Title"] = "Get All Product";
+}
+<h1>Product List</h1>
+
+<p>
+    <a asp-action="AddProduct">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Color
+            </th>
+            <th>
+                Unit Price
+            </th>
+            <th>
+                Available Quantity
+            </th>
+            <th>
+                Created Date
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Category</td>
+                <td>@product.color</td>
+                <td>@product.UnitPrice</td>
+                <td>@product.AvailableQuantity</td>
+                <td>@product.CreatedDate</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@product.ProductId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@product.ProductId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@product.ProductId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
