@@ -8,10 +8,10 @@ namespace ASP.Net_Core_MVC.Controllers
     public class AccountController : Controller
 
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        public AccountController(UserManager<IdentityUser> userManager,
-                                      SignInManager<IdentityUser> signInManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        public AccountController(UserManager<ApplicationUser> userManager,
+                                      SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -27,32 +27,41 @@ namespace ASP.Net_Core_MVC.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser  // Here IdentityUser Generic Class 
+                // Copy data from RegisterViewModel to ApplicationUser
+                var user = new ApplicationUser
                 {
-                    UserName = model.Email,  // 
+                    UserName = model.Email,
                     Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName
                 };
-
+                // Store user data in AspNetUsers database table
                 var result = await _userManager.CreateAsync(user, model.Password);
-
+                // If user is successfully created, sign-in the user using
+                // SignInManager and redirect to index action of HomeController
                 if (result.Succeeded)
                 {
+                    // If the user is signed in and in the Admin role, then it is
+                    // the Admin user that is creating a new user. 
+                    // So redirect the Admin user to ListUsers action of Administration Controller
+                    if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                    {
+                        return RedirectToAction("ListUsers", "Administration");
+                    }
                     await _signInManager.SignInAsync(user, isPersistent: false);
-
-                    return RedirectToAction("index", "Home");
+                    return RedirectToAction("index", "home");
                 }
-
+                // If there are any errors, add them to the ModelState object
+                // which will be displayed by the validation summary tag helper
                 foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
-
-                ModelState.AddModelError(string.Empty, "Invalid");
-
             }
             return View(model);
         }

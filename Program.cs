@@ -1,24 +1,39 @@
 using ASP.Net_Core_MVC.Data;
 using ASP.Net_Core_MVC.Infrastructure.Generic;
 using ASP.Net_Core_MVC.Infrastructure.IGeneric;
+using ASP.Net_Core_MVC.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<DataContext>(options =>
-{
-    // Configure the DbContext to use SQL Server and specify the connection string
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<DataContext>();
+    options.UseSqlServer(connectionString));
+// //Configuration Identity Services
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(
+    options =>
+    {
+        // Password settings
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequiredUniqueChars = 4;
+        // Other settings can be configured here
+    }).AddEntityFrameworkStores<DataContext>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
-builder.Services.AddScoped<UserManager<IdentityUser>>();
-builder.Services.AddScoped<SignInManager<IdentityUser>>();
-builder.Services.AddScoped<IProduct, ProductService>();
-builder.Services.AddControllersWithViews();
+// Configure the Application Cookie settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // If the LoginPath isn't set, ASP.NET Core defaults the path to /Account/Login.
+    options.LoginPath = "/Account/Login"; // Set your login path here
+});
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<SignInManager<ApplicationUser>>();
+builder.Services.AddScoped<RoleManager<ApplicationRole>>();
+builder.Services.AddScoped<IProduct, ProductService>(); builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
