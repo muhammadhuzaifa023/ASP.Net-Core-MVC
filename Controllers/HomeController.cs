@@ -1,4 +1,5 @@
 using ASP.Net_Core_MVC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,12 +14,24 @@ namespace ASP.Net_Core_MVC.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
-
+        [Authorize]
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        public IActionResult NonSecureMethod()
+        {
+            return View();
+        }
+        [Authorize]
+        public IActionResult SecureMethod()
         {
             return View();
         }
@@ -28,5 +41,6 @@ namespace ASP.Net_Core_MVC.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
     }
 }

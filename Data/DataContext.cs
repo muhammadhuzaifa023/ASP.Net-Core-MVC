@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ASP.Net_Core_MVC.Data
 {
-    public class DataContext : IdentityDbContext
+    public class DataContext : IdentityDbContext<ApplicationUser>
     {
         private readonly DbContextOptions _options;
         public DataContext(DbContextOptions<DataContext> options) : base(options)
