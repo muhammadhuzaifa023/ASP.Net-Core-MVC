@@ -29,11 +29,22 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     // If the LoginPath isn't set, ASP.NET Core defaults the path to /Account/Login.
     options.LoginPath = "/Account/Login"; // Set your login path here
+                                          // If the AccessDenied isn't set, ASP.NET Core defaults the path to /Account/AccessDenied
+    options.AccessDeniedPath = "/Account/AccessDenied";
 });
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<RoleManager<ApplicationRole>>();
-builder.Services.AddScoped<IProduct, ProductService>(); builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IProduct, ProductService>();
+
+
+// -------------------------------------  Claimed Based Authorization with Policy claims ---------------------------------------------//
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role"));
+    options.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role"));
+});
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -43,6 +54,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
 }
 
 app.UseHttpsRedirection();

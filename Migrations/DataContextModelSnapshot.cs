@@ -295,7 +295,7 @@ namespace ASP.Net_Core_MVC.Migrations
                     b.HasOne("ASP.Net_Core_MVC.Models.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("ASP.Net_Core_MVC.Models.ApplicationUser", null)

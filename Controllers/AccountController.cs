@@ -96,7 +96,12 @@ namespace ASP.Net_Core_MVC.Controllers
 
             return RedirectToAction("Login");
         }
-
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 
       
