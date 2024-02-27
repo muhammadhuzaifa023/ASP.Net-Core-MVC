@@ -1,0 +1,23 @@
+﻿@model VerifyTwoFactorTokenViewModel
+@{
+    ViewData["Title"] = "VerifyTwoFactorToken";
+}
+<h1>Verify Two Factor Token</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" asp-action="VerifyTwoFactorToken" asp-controller="Account">
+            <input asp-for="Email" type="hidden" />
+            <input asp-for="ReturnUrl" type="hidden" />
+            <input asp-for="Token" type="hidden" />
+            <input asp-for="RememberMe" type="hidden" />
+            <div class="form-group">
+                <label>Enter the Verification Token Send to Your Phone Number and Email</label>
+                <label asp-for="TwoFactorCode"></label>
+                <input asp-for="TwoFactorCode" class="form-control" />
+                <span asp-validation-for="TwoFactorCode" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+    </div>
+</div>

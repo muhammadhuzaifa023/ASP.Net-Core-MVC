@@ -5,6 +5,7 @@ using ASP.Net_Core_MVC.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -21,8 +22,18 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(
         options.Password.RequireUppercase = true;
         options.Password.RequireLowercase = true;
         options.Password.RequiredUniqueChars = 4;
+
+
+        // Rest of the Code
+
+        // Lockout settings
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30); // Lockout duration
+        options.Lockout.MaxFailedAccessAttempts = 5; // Number of failed attempts allowed
+        options.Lockout.AllowedForNewUsers = true; // Lockout new users
+
+
         // Other settings can be configured here
-    }).AddEntityFrameworkStores<DataContext>();
+    }).AddEntityFrameworkStores<DataContext>().AddDefaultTokenProviders();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 // Configure the Application Cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
@@ -32,9 +43,17 @@ builder.Services.ConfigureApplicationCookie(options =>
                                           // If the AccessDenied isn't set, ASP.NET Core defaults the path to /Account/AccessDenied
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+// Configure token lifespan
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    // Set token lifespan to 2 hours
+    options.TokenLifespan = TimeSpan.FromHours(2);
+});
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<RoleManager<ApplicationRole>>();
+builder.Services.AddScoped<ISenderEmail, EmailSender>();
+
 builder.Services.AddScoped<IProduct, ProductService>();
 
 

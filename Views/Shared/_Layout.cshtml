@@ -1,5 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> _signInManager
+@inject UserManager<ApplicationUser> _userManager
+@{
+    var userDetail = await _userManager.GetUserAsync(User);
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,11 +61,35 @@
                                 </ul>
                             </li>
                         } *@
-                    </ul>
+                    </ul>  
                     <ul class="navbar-nav ml-auto">
                         @*If the user is signed-in display Logout link*@
                         @if (_signInManager.IsSignedIn(User))
                         {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMyAccountLink" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    My Account
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMyAccountLink">
+                                    <a class="dropdown-item" asp-controller="Account"
+                                       asp-action="ChangePassword">Set Password</a>
+                                    <a class="dropdown-item" asp-controller="Account"
+                                       asp-action="UpdateProfile">Update Profile</a>
+                                    <a class="dropdown-item" asp-controller="Account"
+                                       asp-action="ConfirmPhoneNumber">Confirm Phone Number</a>
+                                    @if (userDetail.TwoFactorEnabled)
+                                    {
+                                        <a class="dropdown-item" asp-controller="Account"
+                                           asp-action="ManageTwoFactorAuthentication">Disable 2FA</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item" asp-controller="Account"
+                                           asp-action="ManageTwoFactorAuthentication">Enable 2FA</a>
+                                    }
+                                </ul>
+                            </li>
                             <li class="nav-item">
                                 <form method="post" asp-controller="account" asp-action="logout">
                                     <button type="submit" style="width:auto"
